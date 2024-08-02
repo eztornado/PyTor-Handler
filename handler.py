@@ -10,15 +10,15 @@ class CommandHandler:
         self.jobs = []
 
     def everyMinute(self, func, *args):
-        job = schedule.every(1).minute.do(self._run_in_thread, func, *args)
+        job = schedule.every(1).minute.at(":00").do(self._run_in_thread, func, *args)
         self.jobs.append(job)
 
     def everyFiveMinutes(self, func, *args):
-        job = schedule.every(5).minutes.do(self._run_in_thread, func, *args)
+        job = schedule.every(5).minutes.at(":00").do(self._run_in_thread, func, *args)
         self.jobs.append(job)
 
     def everyHour(self, func, *args):
-        job = schedule.every(1).hour.do(self._run_in_thread, func, *args)
+        job = schedule.every(1).hour.at(":00").do(self._run_in_thread, func, *args)
         self.jobs.append(job)
 
     def at(self, time_str, func, *args):
@@ -32,7 +32,10 @@ class CommandHandler:
     def run_pending(self):
         while True:
             schedule.run_pending()
-            time.sleep(60)
+            now = datetime.now()
+            # Calcular el tiempo hasta el próximo minuto
+            sleep_time = 60 - now.second
+            time.sleep(sleep_time)
 
 
 def call(program, script, args):
