@@ -17,6 +17,10 @@ class CommandHandler:
     def __init__(self):
         self.jobs = []
 
+    def everyTenSeconds(self, func, *args):
+        job = schedule.every(10).seconds.do(self._run_in_thread, 'everyTenSeconds', func, *args)
+        self.jobs.append(job)
+
     def everyMinute(self, func, *args):
         job = schedule.every(1).minute.at(":00").do(self._run_in_thread, 'everyMinute', func, *args)
         self.jobs.append(job)
@@ -49,13 +53,11 @@ class CommandHandler:
         while True:
             schedule.run_pending()
             now = datetime.now()
-            sleep_time = 60 - now.second
+            sleep_time = 60 - now.second if now.second != 0 else 1
             time.sleep(sleep_time)
-
 
 def call(program, script, args):
     subprocess.run([program, script] + list(args))
-
 
 if __name__ == "__main__":
     handler = CommandHandler()
@@ -63,6 +65,7 @@ if __name__ == "__main__":
 
     #Execution examples
     # Define tasks
+    #handler.everyTenSeconds(call, 'python', 'quick_task.py', ['arg1'])
     #handler.everyMinute(call, 'python', 'program.py', ['arg1', 'arg2'])
     #handler.everyFiveMinutes(call, 'python', 'another_program.py', ['arg1'])
     #handler.everyHour(call, 'python', 'hourly_program.py', [])
@@ -72,3 +75,4 @@ if __name__ == "__main__":
 
     # Start the handler
     handler.run_pending()
+
